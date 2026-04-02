@@ -1,0 +1,266 @@
+1. SQL LANGUAGE TYPES (DETAILED)
+🔹 DDL – Data Definition Language
+
+👉 Defines structure (schema) of database objects
+
+What actually happens?
+You are telling DB how data should be stored
+No actual data manipulation
+Commands + Meaning
+CREATE → create object
+ALTER → modify structure
+DROP → remove completely
+TRUNCATE → delete all rows (fast, no rollback usually)
+
+Example:
+CREATE TABLE Students (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    age INT
+);
+
+ALTER TABLE Students ADD email VARCHAR(100);
+
+TRUNCATE TABLE Students;
+🔹 DML – Data Manipulation Language
+
+👉 Works on data inside table
+
+What actually happens?
+Rows are inserted, updated, or deleted
+Example:
+INSERT INTO Students VALUES (1, 'John', 20);
+
+UPDATE Students
+SET age = 21
+WHERE id = 1;
+
+DELETE FROM Students
+WHERE id = 1;
+
+👉 ⚠️ Important:
+
+WHERE is critical → otherwise all rows affected
+🔹 DQL – Data Query Language
+
+👉 Used for retrieving data
+
+Core command:
+SELECT * FROM Students;
+
+👉 Can be combined with:
+
+WHERE
+GROUP BY
+ORDER BY
+🔹 DCL – Data Control Language
+
+👉 Controls permissions
+
+Real-world:
+Admin gives access to users
+GRANT SELECT ON Students TO user1;
+REVOKE SELECT ON Students FROM user1;
+🔹 TCL – Transaction Control Language
+
+👉 Controls transactions (group of queries)
+
+Why needed?
+To maintain data consistency
+BEGIN;
+
+UPDATE Accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE Accounts SET balance = balance + 100 WHERE id = 2;
+
+COMMIT;
+
+👉 If error:
+
+ROLLBACK;
+
+2. CONSTRAINTS (DEEP UNDERSTANDING)
+
+👉 Constraints = rules to prevent bad data
+
+🔸 PRIMARY KEY
+Properties:
+Unique
+Not NULL
+One per table
+id INT PRIMARY KEY
+
+👉 Internal behavior:
+
+DB creates index automatically
+Faster search
+🔸 FOREIGN KEY
+
+👉 Connects tables
+
+Why needed?
+Prevent invalid references
+FOREIGN KEY (dept_id)
+REFERENCES Departments(dept_id)
+
+👉 Enforces:
+
+Referential Integrity
+🔸 NOT NULL
+name VARCHAR(50) NOT NULL
+
+👉 Ensures column must have value
+
+🔸 UNIQUE
+email VARCHAR(100) UNIQUE
+
+👉 Prevent duplicates
+
+🔸 CHECK
+age INT CHECK (age >= 18)
+
+👉 Adds logical condition
+
+🔸 DEFAULT
+country VARCHAR(50) DEFAULT 'USA'
+
+👉 Auto value if not provided
+
+🔗 3. PRIMARY KEY vs FOREIGN KEY (DEEP)
+Feature	PRIMARY KEY	FOREIGN KEY
+Purpose	Identify row	Link tables
+Null allowed	❌	✅
+Unique	✅	❌
+🔥 Real Example:
+CREATE TABLE Departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50)
+);
+
+CREATE TABLE Employees (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
+);
+🧠 Key Concept:
+
+👉 Parent table → Departments
+👉 Child table → Employees
+
+🔥 4. CASCADE vs RESTRICT (DEEP LOGIC)
+🟥 RESTRICT
+ON DELETE RESTRICT
+
+👉 Behavior:
+
+Prevents deletion if child exists
+
+👉 Example:
+
+Dept has employees → cannot delete dept
+🟩 CASCADE
+ON DELETE CASCADE
+
+👉 Behavior:
+
+Deletes all related rows
+
+👉 Example:
+
+Delete dept → employees deleted automatically
+⚠️ Important:
+CASCADE	RESTRICT
+Automatic delete	Prevent delete
+Risky	Safe
+⚙️ 5. SQL QUERY EXECUTION ORDER (VERY IMPORTANT)
+
+👉 SQL is written like:
+
+SELECT ...
+FROM ...
+WHERE ...
+GROUP BY ...
+HAVING ...
+ORDER BY ...
+
+👉 But executed as:
+
+FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY
+🧠 Why this matters?
+
+Because:
+
+You cannot use alias in WHERE
+GROUP BY happens before SELECT
+🔥 Example:
+SELECT dept_id, COUNT(*) AS total
+FROM Employees
+WHERE salary > 3000
+GROUP BY dept_id
+HAVING total > 5
+ORDER BY total DESC;
+Step-by-step execution:
+FROM → Employees table loaded
+WHERE → filter salary > 3000
+GROUP BY → group by dept
+HAVING → filter groups
+SELECT → choose columns
+ORDER BY → sort
+📊 6. CLAUSES (DETAILED)
+🔹 FROM
+
+👉 Source of data
+
+FROM Employees
+🔹 WHERE
+
+👉 Filters rows BEFORE grouping
+
+WHERE salary > 3000
+🔹 GROUP BY
+
+👉 Groups rows into categories
+
+GROUP BY dept_id
+
+👉 Used with:
+
+COUNT()
+SUM()
+AVG()
+🔹 HAVING
+
+👉 Filters grouped data
+
+HAVING COUNT(*) > 5
+🔹 SELECT
+
+👉 Final columns to display
+
+SELECT dept_id, COUNT(*)
+🔹 ORDER BY
+
+👉 Sort result
+
+ORDER BY salary DESC
+🔥 7. PRACTICAL EXAMPLES (REAL-WORLD)
+🎯 Example 1: Total Payment per Customer
+SELECT customer_id, SUM(amount) AS total
+FROM payment
+GROUP BY customer_id;
+🎯 Example 2: High-paying Customers
+SELECT customer_id, SUM(amount) AS total
+FROM payment
+GROUP BY customer_id
+HAVING total > 100;
+🎯 Example 3: Sorted Results
+SELECT * FROM payment
+ORDER BY amount DESC;
+🎯 Example 4: Combined Query
+SELECT customer_id, COUNT(*) AS rentals
+FROM rental
+WHERE rental_date > '2005-01-01'
+GROUP BY customer_id
+HAVING rentals > 5
+ORDER BY rentals DESC;
+
