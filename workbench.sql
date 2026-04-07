@@ -199,9 +199,9 @@ group by st.store_id;
 
 
 -- 7. List the customers who have rented films more than 5 times. Include their name and total rental count.
-select c.first_name, c.last_name, count(r.rental_id) as rental_count
+select c.customer_id,c.first_name, c.last_name, count(r.rental_id) as rental_count
 from sakila.customer c join sakila.rental r on c.customer_id = r.customer_id
-group by c.first_name, c.last_name
+group by c.customer_id,c.first_name, c.last_name
 having count(r.rental_id) >5
 order by count(r.rental_id) desc;
 
