@@ -1,0 +1,8 @@
+deslimeter
+store procedure
+indexing
+non-clustered indexing
+3cte
+1temp
+1view
+5subq
